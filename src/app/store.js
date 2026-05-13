@@ -12,7 +12,7 @@ export const store = configureStore({
   preloadedState,
 });
 
-// Subscribe to store changes and persist them to sessionStorage
+// Save to sessionStorage whenever the store changes
 store.subscribe(() => {
   saveState(store.getState());
 });

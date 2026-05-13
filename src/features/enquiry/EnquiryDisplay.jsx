@@ -1,140 +1,39 @@
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { submitEnquiry } from './enquirySlice';
-import FormField from '../../components/FormField/FormField';
+import { useDispatch, useSelector } from 'react-redux';
+import { resetEnquiry } from './enquirySlice';
+import DetailRow from '../../components/DetailRow/DetailRow';
 import Button from '../../components/Button/Button';
 
-const initialFormState = {
-  firstName: '',
-  lastName: '',
-  email: '',
-  phone: '',
-  enquiryType: '',
-  message: '',
-};
-
-const enquiryOptions = [
-  { value: 'fines', label: 'Fines' },
-  { value: 'taxes', label: 'Taxes' },
-  { value: 'grants', label: 'Grants & Schemes' },
-  { value: 'debt', label: 'Debt Recovery' },
-  { value: 'other', label: 'Other' },
-];
-
-function EnquiryForm() {
+function EnquiryDisplay() {
   const dispatch = useDispatch();
-  const [formData, setFormData] = useState(initialFormState);
-  const [errors, setErrors] = useState({});
+  const { data } = useSelector((state) => state.enquiry);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
-    }
+  if (!data) return null;
+
+  const handleNewEnquiry = () => {
+    dispatch(resetEnquiry());
   };
 
-  const validate = () => {
-    const newErrors = {};
-    if (!formData.firstName.trim())
-      newErrors.firstName = 'First name is required';
-    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
-    }
-    if (!formData.enquiryType)
-      newErrors.enquiryType = 'Please select an enquiry type';
-    if (!formData.message.trim()) newErrors.message = 'Message is required';
-    return newErrors;
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-    dispatch(
-      submitEnquiry({ ...formData, submittedAt: new Date().toISOString() }),
-    );
-  };
+  const formattedDate = new Date(data.submittedAt).toLocaleString('en-AU');
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
-      <h2>Customer Enquiry Form</h2>
+    <div className='enquiry-display'>
+      <h2>✓ Enquiry Submitted Successfully</h2>
+      <p>Thank you for your enquiry. We have received the following details:</p>
 
-      <FormField
-        id='firstName'
-        name='firstName'
-        label='First Name'
-        value={formData.firstName}
-        onChange={handleChange}
-        error={errors.firstName}
-        required
-      />
+      <dl className='details'>
+        <DetailRow label='Name' value={`${data.firstName} ${data.lastName}`} />
+        <DetailRow label='Email' value={data.email} />
+        <DetailRow label='Phone' value={data.phone} />
+        <DetailRow label='Enquiry Type' value={data.enquiryType} />
+        <DetailRow label='Message' value={data.message} />
+        <DetailRow label='Submitted At' value={formattedDate} />
+      </dl>
 
-      <FormField
-        id='lastName'
-        name='lastName'
-        label='Last Name'
-        value={formData.lastName}
-        onChange={handleChange}
-        error={errors.lastName}
-        required
-      />
-
-      <FormField
-        id='email'
-        name='email'
-        label='Email'
-        type='email'
-        value={formData.email}
-        onChange={handleChange}
-        error={errors.email}
-        required
-      />
-
-      <FormField
-        id='phone'
-        name='phone'
-        label='Phone'
-        type='tel'
-        value={formData.phone}
-        onChange={handleChange}
-      />
-
-      <FormField
-        id='enquiryType'
-        name='enquiryType'
-        label='Enquiry Type'
-        type='select'
-        value={formData.enquiryType}
-        onChange={handleChange}
-        error={errors.enquiryType}
-        options={enquiryOptions}
-        required
-      />
-
-      <FormField
-        id='message'
-        name='message'
-        label='Message'
-        type='textarea'
-        value={formData.message}
-        onChange={handleChange}
-        error={errors.message}
-        rows={5}
-        required
-      />
-
-      <Button type='submit' variant='primary'>
-        Submit Enquiry
+      <Button onClick={handleNewEnquiry} variant='primary'>
+        Submit Another Enquiry
       </Button>
-    </form>
+    </div>
   );
 }
 
-export default EnquiryForm;
+export default EnquiryDisplay;

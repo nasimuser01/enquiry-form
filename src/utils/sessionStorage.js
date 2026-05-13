@@ -1,3 +1,8 @@
+// Thin wrapper around the browser's sessionStorage API.
+// Wrapping each call in try/catch handles edge cases that would otherwise
+// crash the app — for example, private browsing modes that block storage,
+// quota-exceeded errors, or storage being disabled by the user.
+
 const STORAGE_KEY = 'enquiryState';
 
 export const loadState = () => {

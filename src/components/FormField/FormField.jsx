@@ -9,8 +9,8 @@ function FormField({
   onChange,
   error,
   required = false,
-  options = [], // for select fields
-  rows = 4, // for textarea fields
+  options = [],
+  rows = 4,
   ...rest
 }) {
   const errorId = error ? `${id}-error` : undefined;
